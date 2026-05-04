@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { User } from "./models/User.js";
 import bcrypt, { hash } from "bcryptjs";
 import jwt from "jsonwebtoken";
+import protect from "./middleware/authMiddleware.js";
 
 const app = express();
 
@@ -74,6 +75,12 @@ app.post("/api/auth/login", async (req, res) => {
       .send({ message: "login error", error: error.message });
   }
 });
+
+// user profile
+app.get('/api/user/profile',protect,(req,res)=>{
+  res.send({  message: "Protected route accessed", user:req.user})
+})
+
 
 // sample_mflix
 app.get("/sample/anydata", async (req, res) => {
