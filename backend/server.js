@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import { User } from "./models/User.js";
+import { Message } from "./models/Message.js";
 import bcrypt, { hash } from "bcryptjs";
 import jwt from "jsonwebtoken";
 import protect from "./middleware/authMiddleware.js";
@@ -77,10 +78,9 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 // user profile
-app.get('/api/user/profile',protect,(req,res)=>{
-  res.send({  message: "Protected route accessed", user:req.user})
-})
-
+app.get("/api/user/profile", protect, (req, res) => {
+  res.send({ message: "Protected route accessed", user: req.user });
+});
 
 // sample_mflix
 app.get("/sample/anydata", async (req, res) => {
@@ -94,6 +94,51 @@ app.get("/sample/anydata", async (req, res) => {
 
   res.status(200).send("Movies data had received");
 });
+
+
+
+// sender handling
+app.post("/api/messages/send",protect,async (req, res) => {
+try {
+  // sender from logged in user
+const sender=req.user.id;
+
+
+// receiver(comes from the front-end)
+const {receiver,message}=req.body;
+
+// create the message
+const newMessage=await Message.create({
+  sender,
+  receiver,
+  message
+})
+return res.status(200).send(newMessage)
+} catch (error) {
+  return res.status(500).send({
+    message:"message sending failed",
+    error:error.message,
+  })
+}
+});
+
+// receiver handling
+app.get("/api/message/:id",protect,async (req,res)=>{
+  const receiver=req.params.id;
+console.log("rece",receiver);
+
+  // sender details
+const sender=req.user.id;
+console.log("sender",sender);
+
+
+const message=await Message.find({
+$or: [
+    {sender:sender,receiver:receiver},{sender:receiver,receiver:sender}
+  ]
+})
+return res.status(200).send(message)
+})
 
 mongoose
   .connect(process.env.MONGO_URI)
