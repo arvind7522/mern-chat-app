@@ -14,24 +14,28 @@ const server = http.createServer(app);
 
 const io = new Server(server, {});
 
+const onlineUsers = {};
 
-const onlineUsers={}
-
-
-io.on("connection",(socket)=>{
+io.on("connection", (socket) => {
   console.log(socket.id);
-  socket.on("disconnect",()=>{
+  socket.on("sendMessage", (data) => {
+    const receiverSocketId = onlineUsers[data.receiverId];
+    console.log("this is the reveiver id", receiverSocketId);
+    io.to(receiverSocketId).emit("getMessage", {
+      senderId: data.senderId,
+      message: data.message,        
+    });
+  });
+  socket.on("disconnect", () => {
     console.log(socket.id);
-    
-  })
-  socket.on("addUser",(userId)=>{
-    onlineUsers[userId]=socket.id
-    socket.on("disconnect",()=>{
-      delete onlineUsers[userId]
-    })
-  })
-})
-
+  });
+  socket.on("addUser", (userId) => {
+    onlineUsers[userId] = socket.id;      // STORE USER + SOCKET RELATION- backend now know which socket belongs to which user 
+    socket.on("disconnect", () => {
+      delete onlineUsers[userId];
+    });
+  });
+});
 
 dotenv.config();
 
