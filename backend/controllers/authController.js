@@ -60,7 +60,5 @@ const userLogin = async (req, res) => {
   }
 };
 
-// const userProfile
 
-// module.exports = { userRegistration, userLogin };
 export {userRegistration, userLogin}
