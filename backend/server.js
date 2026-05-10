@@ -19,7 +19,7 @@ const onlineUsers = {};
 io.on("connection", (socket) => {
   console.log(socket.id);
   socket.on("sendMessage", (data) => {
-    const receiverSocketId = onlineUsers[data.receiverId];
+    const receiverSocketId = onlineUsers[data.receiverId];          // backend searches: onlineUsers["mongo999"] and gets socket id "socket777"(the user id and socket id mrntioned are just example)
     console.log("this is the reveiver id", receiverSocketId);
     io.to(receiverSocketId).emit("getMessage", {
       senderId: data.senderId,
