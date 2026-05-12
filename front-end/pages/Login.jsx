@@ -1,14 +1,67 @@
+import { useState } from "react";
+import Api from "../services/api";
+
 function Login() {
+  const [user, setUser] = useState({ email: "", password: "" });
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+
+
+// hanndleChange
+const handleChange=(e)=>{
+  const name=e.target.name
+const value=e.target.value
+setUser({
+  ...user,
+  [name]:value,
+})
+}
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (user.email && user.password) {
+      const newUser = {
+        email: user.email,
+        password: user.password,
+      };
+      const response = await Api.post("/auth/login", newUser);
+      setUser({ email: "", password: "" });
+
+      console.log(">>>>>>>>>>>>???", response);
+    }
+  };
+
   return (
-   <div>
-     <h2>Login Page</h2>
-     <form>
-<label htmlFor="email">Email</label>
-<input id="email" type="email" value={email}></input>
+    <div>
+      <h2>Login Page</h2>
 
-     </form>
-   </div>
+      <form onSubmit={handleLogin}>
+        <label htmlFor="email">Email:</label>
+        <input
+        name="email"
+          type="email"
+          placeholder="enter you email"
+          value={user.email}
+          onChange={handleChange}
+          required
+        ></input>
+        <br />
+        <br />
 
+        <label htmlFor="password">Password:</label>
+        <input
+        name="password"
+          type="password"
+          placeholder="enter you password"
+          value={user.password}
+          onChange={handleChange}
+          required
+        ></input>
+        <br />
+        <br />
+        <button type="submit">Login</button>
+      </form>
+    </div>
   );
 }
 
