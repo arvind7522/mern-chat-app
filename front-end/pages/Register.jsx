@@ -7,17 +7,24 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async(e) => {
-    e.preventDefault();
-    if (name && email && password) {
-      const newUser =  {
-        name,
-        email,
-        password,
-      };
-      await Api.post("/auth/register",newUser)
-      setUser(newUser);
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      if (name && email && password) {
+        const newUser = {
+          name,
+          email,
+          password,
+        };
+        await Api.post("/auth/register", newUser);
+        setUser(newUser);
+      }
+    } catch (error) {
+      console.log(error);
     }
+    setName("");
+    setEmail("");
+    setPassword("");
   };
   return (
     <div>

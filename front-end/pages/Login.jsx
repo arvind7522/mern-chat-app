@@ -6,16 +6,15 @@ function Login() {
   // const [email, setEmail] = useState("");
   // const [password, setPassword] = useState("");
 
-
-// hanndleChange
-const handleChange=(e)=>{
-  const name=e.target.name
-const value=e.target.value
-setUser({
-  ...user,
-  [name]:value,
-})
-}
+  // hanndleChange
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setUser({
+      ...user,
+      [name]: value,
+    });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -25,9 +24,10 @@ setUser({
         password: user.password,
       };
       const response = await Api.post("/auth/login", newUser);
+      console.log("response",response);
+      
+      localStorage.setItem("token", response.data.token);
       setUser({ email: "", password: "" });
-
-      console.log(">>>>>>>>>>>>???", response);
     }
   };
 
@@ -38,7 +38,7 @@ setUser({
       <form onSubmit={handleLogin}>
         <label htmlFor="email">Email:</label>
         <input
-        name="email"
+          name="email"
           type="email"
           placeholder="enter you email"
           value={user.email}
@@ -50,7 +50,7 @@ setUser({
 
         <label htmlFor="password">Password:</label>
         <input
-        name="password"
+          name="password"
           type="password"
           placeholder="enter you password"
           value={user.password}

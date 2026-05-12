@@ -1,7 +1,6 @@
 import bcrypt, { hash } from "bcryptjs";
-import {User} from "../models/User.js"
-import jwt from "jsonwebtoken"
-
+import { User } from "../models/User.js";
+import jwt from "jsonwebtoken";
 
 const userRegistration = async (req, res) => {
   try {
@@ -50,9 +49,15 @@ const userLogin = async (req, res) => {
       expiresIn: "1d",
     });
 
-    return res
-      .status(200)
-      .send({ message: "user logged in sucessfully", token: token });
+    return res.status(200).send({
+      message: "user logged in sucessfully",
+      token: token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     return res
       .status(500)
@@ -60,5 +65,4 @@ const userLogin = async (req, res) => {
   }
 };
 
-
-export {userRegistration, userLogin}
+export { userRegistration, userLogin };
