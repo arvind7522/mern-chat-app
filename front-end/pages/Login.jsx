@@ -1,10 +1,13 @@
 import { useState } from "react";
 import Api from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [user, setUser] = useState({ email: "", password: "" });
   // const [email, setEmail] = useState("");
   // const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   // hanndleChange
   const handleChange = (e) => {
@@ -24,9 +27,12 @@ function Login() {
         password: user.password,
       };
       const response = await Api.post("/auth/login", newUser);
-      console.log("response",response);
-      
+      console.log("response", response);
+
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/chat");
+
       setUser({ email: "", password: "" });
     }
   };

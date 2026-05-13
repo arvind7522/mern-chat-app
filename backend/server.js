@@ -46,7 +46,7 @@ app.use(cors());
 // routes
 app.use("/api/auth", authrouter);
 app.use("/api/message", messagerouter);
-app.use("/", userrouter);                              // there is a mistake here, need to "use /api" instead of just ""
+app.use("/api", userrouter);                              // there is a mistake here, need to "use /api" instead of just ""
 
 mongoose
   .connect(process.env.MONGO_URI)

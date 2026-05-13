@@ -1,7 +1,8 @@
-import {User} from "../models/User.js"
+import { User } from "../models/User.js";
 
-const getUser =(req, res) => {
-  res.send("Hello Arvind this is the response from the server");
+const getUser =async(req, res) => {
+  const users=await User.find().select("-password")
+  res.send({message:"Hello Arvind this is the response from the server",users});
 }
 
 const userProfile=(req, res) => {

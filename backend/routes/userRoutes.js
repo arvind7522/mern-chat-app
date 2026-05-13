@@ -7,6 +7,6 @@ import {userProfile,getUser} from "../controllers/userController.js"
 userrouter.get("/",getUser);
 
 // user profile
-userrouter.get("/api/user/profile", protect,userProfile);
+userrouter.get("/user/profile", protect,userProfile);
 
 export default userrouter
