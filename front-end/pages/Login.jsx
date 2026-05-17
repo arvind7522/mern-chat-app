@@ -27,7 +27,6 @@ function Login() {
         password: user.password,
       };
       const response = await Api.post("/auth/login", newUser);
-      console.log("response", response);
 
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
