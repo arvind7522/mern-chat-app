@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Api from "../services/api";
+import socket from "../utils/socket";
+import { data } from "react-router-dom";
 
 const Chat = () => {
   const [users, setUsers] = useState([]);
@@ -13,8 +15,7 @@ const Chat = () => {
     const response = await Api.get(`/message/${receiverId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-        setMessages(response.data);
-
+    setMessages(response.data);
   };
 
   useEffect(() => {
@@ -43,14 +44,54 @@ const Chat = () => {
     fetchMessages();
   }, [selectedUser]);
 
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
+
+    socket.on("connect", () => {
+      socket.emit("addUser", loggedInUser.id);
+    });
+
+    socket.emit("addUser", loggedInUser.id);
+  }, []);
+
+  useEffect(() => {
+    socket.on("getMessage", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: data.senderId,
+          message: data.message,
+        },
+      ]);
+    });
+
+    return () => {
+      socket.off("getMessage");
+    };
+  }, []);
+
   const submitHandle = async () => {
     const token = localStorage.getItem("token");
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
     await Api.post(
       "/message/send",
       { receiver: selectedUser._id, message: text },
       { headers: { Authorization: `Bearer ${token}` } },
     );
+
+    socket.emit("sendMessage", {
+      senderId: loggedInUser.id,
+      receiverId: selectedUser._id,
+      message: text,
+    });
+    setMessages((prev) => [
+      ...prev,
+      {
+        senderId: loggedInUser.id,
+        message: text,
+      },
+    ]);
     setText("");
   };
 

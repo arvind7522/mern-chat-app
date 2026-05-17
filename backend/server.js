@@ -12,31 +12,6 @@ const app = express();
 // create server
 const server = http.createServer(app);
 
-const io = new Server(server, {});
-
-const onlineUsers = {};
-
-io.on("connection", (socket) => {
-  console.log(socket.id);
-  socket.on("sendMessage", (data) => {
-    const receiverSocketId = onlineUsers[data.receiverId];          // backend searches: onlineUsers["mongo999"] and gets socket id "socket777"(the user id and socket id mrntioned are just example)
-    console.log("this is the reveiver id", receiverSocketId);
-    io.to(receiverSocketId).emit("getMessage", {
-      senderId: data.senderId,
-      message: data.message,        
-    });
-  });
-  socket.on("disconnect", () => {
-    console.log(socket.id);
-  });
-  socket.on("addUser", (userId) => {
-    onlineUsers[userId] = socket.id;      // STORE USER + SOCKET RELATION- backend now know which socket belongs to which user 
-    socket.on("disconnect", () => {
-      delete onlineUsers[userId];
-    });
-  });
-});
-
 dotenv.config();
 
 // middleware
@@ -47,6 +22,45 @@ app.use(cors());
 app.use("/api/auth", authrouter);
 app.use("/api/message", messagerouter);
 app.use("/api", userrouter);                              // there is a mistake here, need to "use /api" instead of just ""
+
+
+const io = new Server(server, {
+  cors:{
+    origin:"http://localhost:5173",
+    methods:["GET","POST"],
+  }
+});
+
+const onlineUsers = {};
+
+io.on("connection", (socket) => {
+  console.log("this is socket id...",socket.id);
+  socket.on("sendMessage", (data) => {
+    const receiverSocketId = onlineUsers[data.receiverId];          // backend searches: onlineUsers["mongo999"] and gets socket id "socket777"(the user id and socket id mrntioned are just example)
+    console.log(">>>>>>>",data.receiverId);
+    console.log("ONLINE USERS:", onlineUsers);
+console.log("receiverSocketId:", receiverSocketId);
+
+    
+    
+    io.to(receiverSocketId).emit("getMessage", {
+      senderId: data.senderId,
+      message: data.message,        
+    });
+  });
+  socket.on("disconnect", () => {
+    console.log("socket id...",socket.id);
+  });
+  socket.on("addUser", (userId) => {
+    console.log("ADD USER RECEIVED", userId);
+    onlineUsers[userId] = socket.id;  
+    console.log("online users...",onlineUsers);    // STORE USER + SOCKET RELATION- backend now know which socket belongs to which user 
+    socket.on("disconnect", () => {
+      delete onlineUsers[userId];
+    });
+  });
+});
+
 
 mongoose
   .connect(process.env.MONGO_URI)
