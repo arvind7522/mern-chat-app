@@ -42,15 +42,31 @@ io.on("connection", (socket) => {
       message: data.message,
     });
   });
+
+  socket.on("typing", ({ receiverId }) => {
+    const receiverSocketId = onlineUsers[receiverId];
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("typing", { senderId: socket.id });
+    }
+  });
+
+  socket.on("stopTyping", ({receiverId})=>{
+    const receiverSocketId=onlineUsers[receiverId]
+    if(receiverSocketId){
+      io.to(receiverSocketId).emit("stopTyping")
+    }
+  })
+
   socket.on("disconnect", () => {
     console.log("socket id...", socket.id);
   });
   socket.on("addUser", (userId) => {
-    console.log("ADD USER RECEIVED", userId);
     onlineUsers[userId] = socket.id;
-    console.log("online users...", onlineUsers); // STORE USER + SOCKET RELATION- backend now know which socket belongs to which user
+    io.emit("getOnlineUsers", Object.keys(onlineUsers));
+    // console.log("online users...", onlineUsers); // STORE USER + SOCKET RELATION- backend now know which socket belongs to which user
     socket.on("disconnect", () => {
       delete onlineUsers[userId];
+      io.emit("getOnlineUsers", Object.keys(onlineUsers));
     });
   });
 });
