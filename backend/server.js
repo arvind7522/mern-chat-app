@@ -16,7 +16,10 @@ dotenv.config();
 
 // middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin:"https://mern-chat-app-indol-kappa.vercel.app",
+  credentials:true
+}));
 
 // routes
 app.use("/api/auth", authrouter);
@@ -25,7 +28,7 @@ app.use("/api", userrouter); // there is a mistake here, need to "use /api" inst
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://mern-chat-app-indol-kappa.vercel.app",
     methods: ["GET", "POST"],
   },
 });
