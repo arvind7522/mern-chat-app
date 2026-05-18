@@ -21,46 +21,39 @@ app.use(cors());
 // routes
 app.use("/api/auth", authrouter);
 app.use("/api/message", messagerouter);
-app.use("/api", userrouter);                              // there is a mistake here, need to "use /api" instead of just ""
-
+app.use("/api", userrouter); // there is a mistake here, need to "use /api" instead of just ""
 
 const io = new Server(server, {
-  cors:{
-    origin:"http://localhost:5173",
-    methods:["GET","POST"],
-  }
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
 });
 
 const onlineUsers = {};
 
 io.on("connection", (socket) => {
-  console.log("this is socket id...",socket.id);
+  console.log("this is socket id...", socket.id);
   socket.on("sendMessage", (data) => {
-    const receiverSocketId = onlineUsers[data.receiverId];          // backend searches: onlineUsers["mongo999"] and gets socket id "socket777"(the user id and socket id mrntioned are just example)
-    console.log(">>>>>>>",data.receiverId);
-    console.log("ONLINE USERS:", onlineUsers);
-console.log("receiverSocketId:", receiverSocketId);
+    const receiverSocketId = onlineUsers[data.receiverId]; // backend searches: onlineUsers["mongo999"] and gets socket id "socket777"(the user id and socket id mrntioned are just example)
 
-    
-    
     io.to(receiverSocketId).emit("getMessage", {
       senderId: data.senderId,
-      message: data.message,        
+      message: data.message,
     });
   });
   socket.on("disconnect", () => {
-    console.log("socket id...",socket.id);
+    console.log("socket id...", socket.id);
   });
   socket.on("addUser", (userId) => {
     console.log("ADD USER RECEIVED", userId);
-    onlineUsers[userId] = socket.id;  
-    console.log("online users...",onlineUsers);    // STORE USER + SOCKET RELATION- backend now know which socket belongs to which user 
+    onlineUsers[userId] = socket.id;
+    console.log("online users...", onlineUsers); // STORE USER + SOCKET RELATION- backend now know which socket belongs to which user
     socket.on("disconnect", () => {
       delete onlineUsers[userId];
     });
   });
 });
-
 
 mongoose
   .connect(process.env.MONGO_URI)
